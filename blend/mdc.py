@@ -5,14 +5,15 @@ import pandas as pd
 
 coursedeets = []
 
-for x in range(1,25):
+for x in range(1,10):
     url = 'https://mydentalcourse.com/search/?ct=111111111111111111111111111111111111&wf=11111&rm=11111&sd=2020-11-24&pge='
     url2 = '&items=20'
+    
     r = requests.get(url + str(x)+ url2)
 
     soup = BeautifulSoup(r.content, 'html.parser')
 
-    content = soup.find_all('div', class_='mdc_result_inner')
+    content = soup.find_all('div', class_= 'mdc_result_inner')
 
     for property in content: 
         provider = property.find('div', class_ = 'mdc_result_provider').text.strip()
@@ -22,11 +23,9 @@ for x in range(1,25):
         Delivery_Method = property.find('div', class_ = 'mdc_result_city').text.strip()
         Loc = property.find('div', class_ = 'mdc_result_city').text.strip()
         creds = property.find('div', class_ = 'mdc_result_ce').text.strip()
-        uncutdesc = soup.find_all('div', class_ = 'mdc_result_description')
         uncutwhofor = soup.find_all('div', class_ = 'mdc_result_whofor')
-        uncutlink = soup.find_all('div', class_ = 'mdc_result_viewprovider')
-        recurring = soup.find_all('div', class_ = 'mdc_repeat_bar')
-        multiphase = soup.find_all('div', class_ = 'mdc_series_bar')
+        #recurring = soup.find('div', class_ = 'mdc_repeat_bar')
+        #multiphase = soup.find('div', class_ = 'mdc_series_bar')
 
         if Delivery_Method.lower() == 'online':
             meth = 'Online'
@@ -55,16 +54,20 @@ for x in range(1,25):
         else:
             Location = Loc
 
+        for whodis in uncutwhofor:
+            whofor = whodis.find('b').text
+
+        uncutdesc = soup.find('div', class_ = 'mdc_result_description')
+        
         for stonks in uncutdesc: 
             description = stonks.find('span').text.strip()
             category = stonks.find('div', class_ = 'mdc_result_coursetype')
     
+        uncutlink = soup.find('div', class_ = 'mdc_result_viewprovider')
+
         for stencil in uncutlink:
             nonlink = stencil.find('a', href = True)
             link = nonlink['href']
-
-        for whodis in uncutwhofor:
-            whofor = whodis.find('b').text
 
         property_info = {
             'Name': title,
@@ -77,17 +80,18 @@ for x in range(1,25):
             'Whofor': whofor, 
             'Delivery Method': meth,
             'Online?': Delivery,
-            'Recurring?': recurring,
+            #'Recurring?': recurring,
             'Date': date,
             'Link': link,
             }
                 
-    coursedeets.append(property_info)
+        coursedeets.append(property_info)
 
-print(len(coursedeets))
+        print(len(coursedeets))
 
 df = pd.DataFrame(coursedeets)
     
 print(df.head())
 
-df.to_csv('test11.csv')
+df.to_csv('test23.csv')
+
